@@ -1,0 +1,38 @@
+﻿{
+  "DefaultEnvironment": "Test",
+  "Sites": [
+    {
+      "Environment": "Production",
+      "Name": "AppForProd",
+      "Url": "https://your-tenant.sharepoint.com",
+      "Username": "if username is empty, SPDeployment will prompt for it",
+      "Password": "if password is empty, SPDeployment will prompt for it",
+      "Files": [
+        {
+          "Source": "dist\\Style Library",
+          "Destination": "/Style Library",
+          "Exclude": ".*.bundle,.*.map"
+        }
+      ]
+    },
+    {
+      "Environment": "Test",
+      "Name": "AppForTest",
+      "Url": "https://your-tenant.sharepoint.com/sites/dev",
+      "Username": "",
+      "Password": "",
+      "Files": [
+        {
+          "Source": "dist\\Style Library",
+          "Destination": "/Style Library",
+          "Exclude": ".*.bundle,.*.map,.*.min.js"
+        },
+        {
+          "Source": "dist\\Scripts",
+          "Destination": "/scripts",
+          "Exclude": ".*.map"
+        }
+      ]
+    }
+  ]
+}

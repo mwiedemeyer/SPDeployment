@@ -1,0 +1,27 @@
+{
+    "author": "Marco Wiedemeyer",
+    "bin": {
+        "spd": "./bin/spdeployment.exe",
+        "spdeployment": "./bin/spdeployment.exe"
+    },
+    "bugs": {
+        "url": "https://github.com/mwiedemeyer/SPDeployment/issues"
+    },
+    "description": "Deploy files to SharePoint",
+    "homepage": "https://github.com/mwiedemeyer/SPDeployment",
+    "keywords": [
+        "SharePoint",
+        "deployment",
+        "upload"
+    ],
+    "license": "MIT",
+    "name": "spdeployment",
+    "preferGlobal": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mwiedemeyer/SPDeployment"
+    },
+    "scripts": {
+    },
+    "version": "1.0.0"
+}
