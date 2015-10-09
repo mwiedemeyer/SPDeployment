@@ -8,7 +8,7 @@ With the help of a `SPDeployment.json` file in your project you can configure wh
 
 You can install the SPDeployment tool with npm.
 ```bash
-npm install -g spdeployment
+npm install spdeployment -g
 ```
 
 ## Usage
