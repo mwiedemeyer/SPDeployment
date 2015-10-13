@@ -30,6 +30,7 @@ namespace SPDeployment
                         Console.WriteLine("{0}.exe\t\t\tDeploys everything from SPDeployment.json", System.Reflection.Assembly.GetExecutingAssembly().GetName().Name);
                         Console.WriteLine("{0}.exe name:SITENAME\t\tDeploys site with SITENAME", System.Reflection.Assembly.GetExecutingAssembly().GetName().Name);
                         Console.WriteLine("{0}.exe env:ENVNAME\t\tDeploys all sites with environment ENVNAME", System.Reflection.Assembly.GetExecutingAssembly().GetName().Name);
+                        Console.WriteLine("{0}.exe -r\t\tReturns to the console after the deployment is done", System.Reflection.Assembly.GetExecutingAssembly().GetName().Name);
                         Console.ReadLine();
                         return;
                     }
@@ -52,7 +53,8 @@ namespace SPDeployment
             catch { }
             finally
             {
-                Console.ReadLine();
+                if (args.Length == 0 || -1 == Array.IndexOf(args, '-r'))
+                    Console.ReadLine();
                 Console.ResetColor();
             }
         }
