@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Security;
 
 namespace SPDeployment
 {
@@ -184,7 +185,16 @@ namespace SPDeployment
                 Console.WriteLine();
                 site.Password = password;
             }
-            context.Credentials = new System.Net.NetworkCredential(site.Username, site.Password);
+            if (site.Url.ToUpper().Contains("SHAREPOINT.COM"))
+            {
+                var securePassword = new SecureString();
+                foreach (char c in site.Password) securePassword.AppendChar(c);
+                context.Credentials = new SharePointOnlineCredentials(site.Username, securePassword);
+            }
+            else
+            {
+                context.Credentials = new System.Net.NetworkCredential(site.Username, site.Password);
+            }
             context.ExecutingWebRequest += (sender, e) => { e.WebRequestExecutor.WebRequest.PreAuthenticate = true; };
             return context;
         }
