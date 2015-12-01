@@ -17,7 +17,7 @@ namespace SPDeployment
 
             try
             {
-                var deployer = new Deployer("SPDeployment.json");
+                var deployer = new Deployer();
 
                 if (args.Length > 0)
                 {

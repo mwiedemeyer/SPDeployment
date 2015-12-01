@@ -27,4 +27,14 @@ namespace SPDeployment
         public string Destination { get; set; }
         public string Exclude { get; set; }
     }
+
+    /// <summary>
+    /// spdeployment.credentials.json representation
+    /// </summary>
+    public class CredentialConfiguration
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
 }

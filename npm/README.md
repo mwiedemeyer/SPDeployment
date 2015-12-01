@@ -38,6 +38,7 @@ It has the following elements:
       ]
     }
   ]
+}
 ```
 
 With `DefaultEnvironment` you can specify which environment should be deployed when you run `spd` without any parameters.
@@ -46,14 +47,29 @@ Then you can specify multiple sites which must have the following parameters:
 * Environment : Any string to define an environment
 * Name : Any string to define a name for this site
 * Url : The target site url
-* Username : The username or an empty string. If it is empty, `spd` will prompt for it.
-* Password : The password or an empty string. If it is empty, `spd` will prompt for it.
+* (optional) Username : The username or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it .
+* (optional) Password : The password or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it.
 * Files : An array containing
     * the local source folder (with escaped \\)
     * the remote destination folder (in url format with /)
     * Regex to exclude files/folders
 
 Now add this file to your project root.
+
+#### Optional: spdeployment.credentials.json file
+
+To not have the credentials for deployments within the spdeployment.json file you can optionally create a spdeployment.crendentials.json
+which you can then exclude from source control.
+The file has only the following two attributes:
+
+```
+{
+  "Username": "",
+  "Password": ""
+}
+```
+
+If `spd` detects this file, it ignores the Username/Password attributes from `SPDeployment.json`.
 
 ### Run it
 

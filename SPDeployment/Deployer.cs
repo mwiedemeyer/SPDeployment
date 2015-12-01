@@ -14,13 +14,17 @@ namespace SPDeployment
 {
     internal class Deployer
     {
-        private DeploymentConfiguration _deploymentConfiguration;
+        private const string DEPLOYMENT_CONFIG_JSON = "spdeployment.json";
+        private const string DEPLOYMENT_CREDENTIAL_JSON = "spdeployment.credentials.json";
 
-        public Deployer(string deploymentConfiguration)
+        private DeploymentConfiguration _deploymentConfiguration;
+        private CredentialConfiguration _credentialConfiguration;
+
+        public Deployer()
         {
             try
             {
-                var deploymentConfigContent = System.IO.File.ReadAllText(deploymentConfiguration);
+                var deploymentConfigContent = System.IO.File.ReadAllText(DEPLOYMENT_CONFIG_JSON);
                 _deploymentConfiguration = JsonConvert.DeserializeObject<DeploymentConfiguration>(deploymentConfigContent);
             }
             catch (IOException ex)
@@ -29,6 +33,16 @@ namespace SPDeployment
                 Console.ResetColor();
                 throw new ApplicationException("Error initializing deployment system");
             }
+
+            try
+            {
+                if (System.IO.File.Exists(DEPLOYMENT_CREDENTIAL_JSON))
+                {
+                    var deploymentCredentialContent = System.IO.File.ReadAllText(DEPLOYMENT_CREDENTIAL_JSON);
+                    _credentialConfiguration = JsonConvert.DeserializeObject<CredentialConfiguration>(deploymentCredentialContent);
+                }
+            }
+            catch {/* ignore errors for credentials config */}
         }
 
         public void DeployAll()
@@ -162,38 +176,43 @@ namespace SPDeployment
         private ClientContext GetClientContext(DeploymentSite site)
         {
             var context = new ClientContext(site.Url);
-            if (string.IsNullOrEmpty(site.Username))
+
+            var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : null;
+            var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : null;
+
+            if (string.IsNullOrEmpty(username))
             {
                 Console.ResetColor();
                 Console.WriteLine("Please enter username for {0}", site.Url);
-                site.Username = Console.ReadLine();
+                username = Console.ReadLine();
             }
-            if (string.IsNullOrEmpty(site.Password))
+            if (string.IsNullOrEmpty(password))
             {
                 Console.ResetColor();
-                Console.WriteLine("Please enter password for user {0} and site {1}", site.Username, site.Url);
+                Console.WriteLine("Please enter password for user {0} and site {1}", username, site.Url);
                 ConsoleKeyInfo key;
-                string password = "";
+                string pw = "";
                 do
                 {
                     key = Console.ReadKey(true);
                     if (key.Key != ConsoleKey.Enter)
-                        password += key.KeyChar;
+                        pw += key.KeyChar;
                     Console.Write("*");
                 }
                 while (key.Key != ConsoleKey.Enter);
                 Console.WriteLine();
-                site.Password = password;
+                password = pw;
             }
+
             if (site.Url.ToUpper().Contains("SHAREPOINT.COM"))
             {
                 var securePassword = new SecureString();
-                foreach (char c in site.Password) securePassword.AppendChar(c);
-                context.Credentials = new SharePointOnlineCredentials(site.Username, securePassword);
+                foreach (char c in password) securePassword.AppendChar(c);
+                context.Credentials = new SharePointOnlineCredentials(username, securePassword);
             }
             else
             {
-                context.Credentials = new System.Net.NetworkCredential(site.Username, site.Password);
+                context.Credentials = new System.Net.NetworkCredential(username, password);
             }
             context.ExecutingWebRequest += (sender, e) => { e.WebRequestExecutor.WebRequest.PreAuthenticate = true; };
             return context;
