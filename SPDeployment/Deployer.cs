@@ -177,8 +177,8 @@ namespace SPDeployment
         {
             var context = new ClientContext(site.Url);
 
-            var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : null;
-            var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : null;
+            var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : _credentialConfiguration?.Username;
+            var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : _credentialConfiguration?.Password;
 
             if (string.IsNullOrEmpty(username))
             {
