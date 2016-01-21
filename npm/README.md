@@ -45,7 +45,7 @@ It has the following elements:
 With `DefaultEnvironment` you can specify which environment should be deployed when you run `spd` without any parameters.
 Then you can specify multiple sites which must have the following parameters:
 
-* FastMode: Make deployment faster, if destination folder structure is already existing and your destination libraries does not require checkin/checkout/publishing 
+* FastMode: Make deployment faster, if destination folder structure already exists and your destination libraries does not require checkin/checkout/publishing 
 * Environment : Any string to define an environment
 * Name : Any string to define a name for this site
 * Url : The target site url
