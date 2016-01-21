@@ -94,17 +94,20 @@ namespace SPDeployment
                         {
                             Log("... from {0} to {1}", ConsoleColor.DarkGray, fileConfig.Source, fileConfig.Destination);
 
-                            var destFolder = context.Web.EnsureFolderPath(fileConfig.Destination);
-
                             var requiresPublishing = false;
-                            try
+                            if (!site.FastMode)
                             {
-                                var destinationList = context.Web.GetListByUrl(fileConfig.Destination);
-                                context.Load(destinationList, p => p.EnableMinorVersions);
-                                context.ExecuteQuery();
-                                requiresPublishing = destinationList.EnableMinorVersions;
+                                var destFolder = context.Web.EnsureFolderPath(fileConfig.Destination);
+
+                                try
+                                {
+                                    var destinationList = context.Web.GetListByUrl(fileConfig.Destination);
+                                    context.Load(destinationList, p => p.EnableMinorVersions);
+                                    context.ExecuteQuery();
+                                    requiresPublishing = destinationList.EnableMinorVersions;
+                                }
+                                catch { }
                             }
-                            catch { }
 
                             string[] excludeSplit = null;
                             if (!string.IsNullOrEmpty(fileConfig.Exclude))
@@ -147,12 +150,12 @@ namespace SPDeployment
 
                                 var remoteFile = remoteFolder.ServerRelativeUrl + (remoteFolder.ServerRelativeUrl.EndsWith("/") ? string.Empty : "/") + filename;
 
-                                if (fileConfig.Destination != "/")
+                                if (!site.FastMode && fileConfig.Destination != "/")
                                     context.Web.CheckOutFile(remoteFile);
 
                                 remoteFolder.UploadFile(filename, localFile, true);
 
-                                if (fileConfig.Destination != "/")
+                                if (!site.FastMode && fileConfig.Destination != "/")
                                     context.Web.CheckInFile(remoteFile, CheckinType.MajorCheckIn, "SPDeployment");
 
                                 if (requiresPublishing)

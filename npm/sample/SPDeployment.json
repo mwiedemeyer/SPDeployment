@@ -2,6 +2,7 @@
   "DefaultEnvironment": "Test",
   "Sites": [
     {
+      "FastMode":  true,
       "Environment": "Production",
       "Name": "AppForProd",
       "Url": "https://your-tenant.sharepoint.com",

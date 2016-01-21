@@ -13,6 +13,7 @@ namespace SPDeployment
 
     public class DeploymentSite
     {
+        public bool FastMode { get; set; }
         public string Environment { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
