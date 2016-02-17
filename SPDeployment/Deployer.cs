@@ -20,6 +20,10 @@ namespace SPDeployment
         private DeploymentConfiguration _deploymentConfiguration;
         private CredentialConfiguration _credentialConfiguration;
 
+        private List<FileSystemWatcher> _watcherCache = new List<FileSystemWatcher>();
+        private Dictionary<string, Tuple<DeploymentSite, DeploymentFile>> _registeredSources = new Dictionary<string, Tuple<DeploymentSite, DeploymentFile>>();
+
+
         public Deployer()
         {
             try
@@ -45,25 +49,25 @@ namespace SPDeployment
             catch {/* ignore errors for credentials config */}
         }
 
-        public void DeployAll()
+        public void DeployAll(bool watch = false)
         {
             if (string.IsNullOrEmpty(_deploymentConfiguration.DefaultEnvironment) || _deploymentConfiguration.DefaultEnvironment.ToUpper() == "ALL")
-                Deploy();
+                Deploy(watch: watch);
             else
-                Deploy(null, _deploymentConfiguration.DefaultEnvironment);
+                Deploy(null, _deploymentConfiguration.DefaultEnvironment, watch);
         }
 
-        public void DeployByName(string name = null)
+        public void DeployByName(string name = null, bool watch = false)
         {
-            Deploy(name, null);
+            Deploy(name, null, watch);
         }
 
-        public void DeployByEnvironment(string name = null)
+        public void DeployByEnvironment(string name = null, bool watch = false)
         {
-            Deploy(null, name);
+            Deploy(null, name, watch);
         }
 
-        private void Deploy(string name = null, string environment = null)
+        private void Deploy(string name = null, string environment = null, bool watch = false)
         {
             try
             {
@@ -165,15 +169,108 @@ namespace SPDeployment
                             }
                         }
                     }
+                    if (watch)
+                        RegisterWatchTask(site);
                 }
 
-                Log("Completed successfully", ConsoleColor.Green);
+                if (watch)
+                    Log("Completed successfully. Watching for changes...", ConsoleColor.Green);
+                else
+                    Log("Completed successfully", ConsoleColor.Green);
             }
             catch (Exception ex)
             {
                 Log("Stop Error: {0}", ConsoleColor.Red, ex.ToString());
                 Console.ResetColor();
+                throw new ApplicationException();
             }
+        }
+
+        private void RegisterWatchTask(DeploymentSite site)
+        {
+            var fsWatcher = new List<FileSystemWatcher>();
+            foreach (var fileConfig in site.Files)
+            {
+                var fs = new FileSystemWatcher(fileConfig.Source);
+                fs.IncludeSubdirectories = true;
+                fs.NotifyFilter = NotifyFilters.LastWrite;
+                fs.Changed += fs_Changed;
+                fs.EnableRaisingEvents = true;
+                _watcherCache.Add(fs);
+
+                _registeredSources.Add(fileConfig.Source, new Tuple<DeploymentSite, DeploymentFile>(site, fileConfig));
+            }
+        }
+
+        private string _watcherLastFullPath;
+        private DateTime _watcherLastChange = DateTime.MinValue;
+        private void fs_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType != WatcherChangeTypes.Changed)
+                return;
+
+            if (_watcherLastFullPath == e.FullPath && _watcherLastChange.AddSeconds(1) > DateTime.Now)
+                return;
+
+            _watcherLastFullPath = e.FullPath;
+            _watcherLastChange = DateTime.Now;
+
+            Task.Run(() =>
+            {
+                var dir = new DirectoryInfo(e.FullPath);
+                Tuple<DeploymentSite, DeploymentFile> sourceFound = null;
+                while (sourceFound == null && dir != null)
+                {
+                    if (_registeredSources.ContainsKey(dir.Name))
+                    {
+                        sourceFound = _registeredSources[dir.Name];
+                        break;
+                    }
+                    dir = dir.Parent;
+                }
+                if (sourceFound == null)
+                    return;
+
+                var fileConfig = sourceFound.Item2;
+                var site = sourceFound.Item1;
+
+                var localFile = e.FullPath;
+
+                string[] excludeSplit = null;
+                if (!string.IsNullOrEmpty(fileConfig.Exclude))
+                    excludeSplit = fileConfig.Exclude.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (excludeSplit != null)
+                {
+                    var excludeFile = false;
+                    foreach (var exc in excludeSplit)
+                    {
+                        if (Regex.Match(localFile, exc, RegexOptions.IgnoreCase).Success)
+                        {
+                            excludeFile = true;
+                            break;
+                        }
+                    }
+                    if (excludeFile)
+                        return;
+                }
+                                
+                var filename = Path.GetFileName(localFile);
+
+                Log("...... Deploying {0}...", ConsoleColor.DarkGray, filename);
+
+                var localDir = Path.GetDirectoryName(localFile);
+                localDir = localDir.Replace(fileConfig.Source, "").Replace("\\", "/");
+                var remoteFolderPath = fileConfig.Destination + localDir;
+
+                using (var context = GetClientContext(site))
+                {
+                    var remoteFolder = context.Web.EnsureFolderPath(remoteFolderPath);
+                    var remoteFile = remoteFolder.ServerRelativeUrl + (remoteFolder.ServerRelativeUrl.EndsWith("/") ? string.Empty : "/") + filename;
+                    remoteFolder.UploadFile(filename, localFile, true);
+                    Log("...... {0} deployed successfully", ConsoleColor.DarkGreen, remoteFile);
+                }
+            });
         }
 
         private ClientContext GetClientContext(DeploymentSite site)

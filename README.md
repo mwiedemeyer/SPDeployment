@@ -4,6 +4,8 @@ SPDeployment is a command line tool to deploy all kind of files to SharePoint / 
 
 With the help of a `SPDeployment.json` file in your project you can configure which files in which folders should be deployed to which targets.
 
+A new feature is to watch for file changes and deploy only changed files.
+
 ## Installation
 
 You can install the SPDeployment tool with npm.
@@ -47,7 +49,7 @@ Then you can specify multiple sites which must have the following parameters:
 
 * FastMode: Make deployment faster, if destination folder structure already exists and your destination libraries does not require checkin/checkout/publishing 
 * Environment : Any string to define an environment
-* Name : Any string to define a name for this site
+* Name : Any string to define a name for this site. Must be unique.
 * Url : The target site url
 * (optional) Username : The username or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it .
 * (optional) Password : The password or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it.
@@ -80,3 +82,7 @@ To run it, open a command line within your project root folder and run:
 * `spd` without any parameters to deploy all sites for the default environment
 * `spd env:yourenvname` to deploy all sites with the `yourenvname` environment
 * `spd name:somename` to deploy the site with the `somename` name
+
+* `spd watch` to deploy all sites for the default environment and watch for changes
+* `spd env:yourenvname watch` to deploy all sites with the `yourenvname` environment and watch for changes
+* `spd name:somename watch` to deploy the site with the `somename` name and watch for changes
