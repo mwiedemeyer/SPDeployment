@@ -31,7 +31,7 @@
         {
           "Source": "dist\\Scripts",
           "Destination": "/scripts",
-          "Include": "myfile.js"
+          "Exclude": ".*.map"
         }
       ]
     }

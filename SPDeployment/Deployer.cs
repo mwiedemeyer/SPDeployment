@@ -116,9 +116,6 @@ namespace SPDeployment
                             string[] excludeSplit = null;
                             if (!string.IsNullOrEmpty(fileConfig.Exclude))
                                 excludeSplit = fileConfig.Exclude.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            string[] includeSplit = null;
-                            if (!string.IsNullOrEmpty(fileConfig.Include))
-                                includeSplit = fileConfig.Include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                             var folderCache = new Dictionary<string, Folder>();
 
@@ -138,23 +135,6 @@ namespace SPDeployment
                                     if (excludeFile)
                                     {
                                         Log("...... {0} skipped by exclude pattern", ConsoleColor.DarkYellow, localFile);
-                                        continue;
-                                    }
-                                }
-                                if (includeSplit != null)
-                                {
-                                    var excludeFile = false;
-                                    foreach (var inc in includeSplit)
-                                    {
-                                        if (!Regex.Match(localFile, inc, RegexOptions.IgnoreCase).Success)
-                                        {
-                                            excludeFile = true;
-                                            break;
-                                        }
-                                    }
-                                    if (excludeFile)
-                                    {
-                                        Log("...... {0} skipped by include pattern", ConsoleColor.DarkYellow, localFile);
                                         continue;
                                     }
                                 }
@@ -218,7 +198,7 @@ namespace SPDeployment
                 fs.EnableRaisingEvents = true;
                 _watcherCache.Add(fs);
 
-                _registeredSources.Add(fileConfig.Source.ToUpperInvariant(), new Tuple<DeploymentSite, DeploymentFile>(site, fileConfig));
+                _registeredSources.Add(fileConfig.Source, new Tuple<DeploymentSite, DeploymentFile>(site, fileConfig));
             }
         }
 
@@ -241,9 +221,9 @@ namespace SPDeployment
                 Tuple<DeploymentSite, DeploymentFile> sourceFound = null;
                 while (sourceFound == null && dir != null)
                 {
-                    if (_registeredSources.ContainsKey(dir.Name.ToUpperInvariant()))
+                    if (_registeredSources.ContainsKey(dir.Name))
                     {
-                        sourceFound = _registeredSources[dir.Name.ToUpperInvariant()];
+                        sourceFound = _registeredSources[dir.Name];
                         break;
                     }
                     dir = dir.Parent;
@@ -259,9 +239,6 @@ namespace SPDeployment
                 string[] excludeSplit = null;
                 if (!string.IsNullOrEmpty(fileConfig.Exclude))
                     excludeSplit = fileConfig.Exclude.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                string[] includeSplit = null;
-                if (!string.IsNullOrEmpty(fileConfig.Include))
-                    includeSplit = fileConfig.Include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (excludeSplit != null)
                 {
@@ -277,21 +254,7 @@ namespace SPDeployment
                     if (excludeFile)
                         return;
                 }
-                if (includeSplit != null)
-                {
-                    var excludeFile = false;
-                    foreach (var inc in includeSplit)
-                    {
-                        if (!Regex.Match(localFile, inc, RegexOptions.IgnoreCase).Success)
-                        {
-                            excludeFile = true;
-                            break;
-                        }
-                    }
-                    if (excludeFile)
-                        return;
-                }
-
+                                
                 var filename = Path.GetFileName(localFile);
 
                 Log("...... Deploying {0}...", ConsoleColor.DarkGray, filename);
