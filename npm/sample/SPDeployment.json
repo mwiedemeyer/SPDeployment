@@ -2,7 +2,7 @@
   "DefaultEnvironment": "Test",
   "Sites": [
     {
-      "FastMode":  true,
+      "FastMode": true,
       "Environment": "Production",
       "Name": "AppForProd",
       "Url": "https://your-tenant.sharepoint.com",
@@ -31,7 +31,7 @@
         {
           "Source": "dist\\Scripts",
           "Destination": "/scripts",
-          "Exclude": ".*.map"
+          "Include": "myfile.js"
         }
       ]
     }
