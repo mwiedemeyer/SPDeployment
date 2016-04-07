@@ -220,13 +220,15 @@ namespace SPDeployment
 
             Task.Run(() =>
             {
+                var currentDir = Environment.CurrentDirectory.ToUpperInvariant();
                 var dir = new DirectoryInfo(e.FullPath);
                 Tuple<DeploymentSite, DeploymentFile> sourceFound = null;
                 while (sourceFound == null && dir != null)
                 {
-                    if (_registeredSources.ContainsKey(dir.Name.ToUpperInvariant()))
+                    var dirParts = dir.FullName.ToUpperInvariant()?.Replace(currentDir, string.Empty)?.TrimStart('\\');
+                    if (_registeredSources.ContainsKey(dirParts))
                     {
-                        sourceFound = _registeredSources[dir.Name.ToUpperInvariant()];
+                        sourceFound = _registeredSources[dirParts];
                         break;
                     }
                     dir = dir.Parent;
