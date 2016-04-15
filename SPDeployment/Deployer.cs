@@ -141,6 +141,23 @@ namespace SPDeployment
                                         continue;
                                     }
                                 }
+                                if (includeSplit != null)
+                                {
+                                    var excludeFile = false;
+                                    foreach (var inc in includeSplit)
+                                    {
+                                        if (!Regex.Match(localFile, inc, RegexOptions.IgnoreCase).Success)
+                                        {
+                                            excludeFile = true;
+                                            break;
+                                        }
+                                    }
+                                    if (excludeFile)
+                                    {
+                                        Log("...... {0} skipped by include pattern", ConsoleColor.DarkYellow, localFile);
+                                        continue;
+                                    }
+                                }
 
                                 var filename = Path.GetFileName(localFile);
                                 var localDir = Path.GetDirectoryName(localFile);
