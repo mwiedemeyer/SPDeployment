@@ -15,7 +15,7 @@ npm install spdeployment -g
 
 ## Usage
 
-### Create a SPDeployment.json file
+### Create a SPDeployment.json filec
 
 You can use the file in the `sample` folder to get started.
 
@@ -64,7 +64,7 @@ Now add this file to your project root.
 
 #### Optional: spdeployment.credentials.json file
 
-To not have the credentials for deployments within the spdeployment.json file you can optionally create a spdeployment.crendentials.json
+To not have the credentials for deployments within the spdeployment.json file you can optionally create a spdeployment.credentials.json
 which you can then exclude from source control.
 The file has only the following two attributes:
 
