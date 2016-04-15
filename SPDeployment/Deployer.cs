@@ -218,7 +218,8 @@ namespace SPDeployment
                 fs.EnableRaisingEvents = true;
                 _watcherCache.Add(fs);
 
-                _registeredSources.Add(fileConfig.Source.ToUpperInvariant(), new Tuple<DeploymentSite, DeploymentFile>(site, fileConfig));
+                var fullDirName = new DirectoryInfo(fileConfig.Source).FullName.ToUpperInvariant();
+                _registeredSources.Add(fullDirName, new Tuple<DeploymentSite, DeploymentFile>(site, fileConfig));
             }
         }
 
@@ -232,17 +233,19 @@ namespace SPDeployment
             if (_watcherLastFullPath == e.FullPath && _watcherLastChange.AddSeconds(1) > DateTime.Now)
                 return;
 
+            if (new FileInfo(e.FullPath).Attributes.HasFlag(FileAttributes.Hidden))
+                return;
+
             _watcherLastFullPath = e.FullPath;
             _watcherLastChange = DateTime.Now;
 
             Task.Run(() =>
             {
-                var currentDir = Environment.CurrentDirectory.ToUpperInvariant();
                 var dir = new DirectoryInfo(e.FullPath);
                 Tuple<DeploymentSite, DeploymentFile> sourceFound = null;
                 while (sourceFound == null && dir != null)
                 {
-                    var dirParts = dir.FullName.ToUpperInvariant()?.Replace(currentDir, string.Empty)?.TrimStart('\\');
+                    var dirParts = dir.FullName.ToUpperInvariant();
                     if (_registeredSources.ContainsKey(dirParts))
                     {
                         sourceFound = _registeredSources[dirParts];
