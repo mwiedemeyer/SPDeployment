@@ -213,8 +213,9 @@ namespace SPDeployment
             {
                 var fs = new FileSystemWatcher(fileConfig.Source);
                 fs.IncludeSubdirectories = true;
-                fs.NotifyFilter = NotifyFilters.LastWrite;
+                fs.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
                 fs.Changed += fs_Changed;
+                fs.Renamed += fs_Changed; // Visual Studio creates a temp file and then rename it on save
                 fs.EnableRaisingEvents = true;
                 _watcherCache.Add(fs);
 
@@ -227,13 +228,13 @@ namespace SPDeployment
         private DateTime _watcherLastChange = DateTime.MinValue;
         private void fs_Changed(object sender, FileSystemEventArgs e)
         {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-                return;
-
             if (_watcherLastFullPath == e.FullPath && _watcherLastChange.AddSeconds(1) > DateTime.Now)
                 return;
 
-            if (new FileInfo(e.FullPath).Attributes.HasFlag(FileAttributes.Hidden))
+            var fi = new FileInfo(e.FullPath);
+            if (fi.Attributes.HasFlag(FileAttributes.Hidden))
+                return;
+            if (fi.Attributes.HasFlag(FileAttributes.Directory))
                 return;
 
             _watcherLastFullPath = e.FullPath;
@@ -241,6 +242,9 @@ namespace SPDeployment
 
             Task.Run(() =>
             {
+                if (!new FileInfo(e.FullPath).Exists)
+                    return;
+
                 var dir = new DirectoryInfo(e.FullPath);
                 Tuple<DeploymentSite, DeploymentFile> sourceFound = null;
                 while (sourceFound == null && dir != null)
