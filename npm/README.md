@@ -52,8 +52,8 @@ Then you can specify multiple sites which must have the following parameters:
 * Environment : Any string to define an environment
 * Name : Any string to define a name for this site. Must be unique.
 * Url : The target site url
-* (optional) Username : The username or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it .
-* (optional) Password : The password or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json` or prompt for it.
+* (optional) Username : The username or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json`, then in the environment variable `spdeployment:username` or finally prompt for it .
+* (optional) Password : The password or an empty string. If it is empty, `spd` will look for `spdeployment.credentials.json`, then in the environment variable `spdeployment:password` or finally prompt for it .
 * Files : An array containing
     * the local source folder (with escaped \\)
     * the remote destination folder (in url format with /)
@@ -76,6 +76,10 @@ The file has only the following two attributes:
 ```
 
 If `spd` detects this file, it ignores the Username/Password attributes from `SPDeployment.json`.
+If you would like to not save credentials on disk, you can add two user environment variables:
+
+* `spdeployment:username`
+* `spdeployment:password`
 
 ### Run it
 

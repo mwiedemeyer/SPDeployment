@@ -45,6 +45,17 @@ namespace SPDeployment
                     var deploymentCredentialContent = System.IO.File.ReadAllText(DEPLOYMENT_CREDENTIAL_JSON);
                     _credentialConfiguration = JsonConvert.DeserializeObject<CredentialConfiguration>(deploymentCredentialContent);
                 }
+                else
+                {
+                    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.User)))
+                    {
+                        _credentialConfiguration = new CredentialConfiguration()
+                        {
+                            Username = Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.User),
+                            Password = Environment.GetEnvironmentVariable("spdeployment:password", EnvironmentVariableTarget.User)
+                        };
+                    }
+                }
             }
             catch {/* ignore errors for credentials config */}
         }
