@@ -55,6 +55,22 @@ namespace SPDeployment
                             Password = Environment.GetEnvironmentVariable("spdeployment:password", EnvironmentVariableTarget.User)
                         };
                     }
+                    else if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.Process)))
+                    {
+                        _credentialConfiguration = new CredentialConfiguration()
+                        {
+                            Username = Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.Process),
+                            Password = Environment.GetEnvironmentVariable("spdeployment:password", EnvironmentVariableTarget.Process)
+                        };
+                    }
+                    else if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.Machine)))
+                    {
+                        _credentialConfiguration = new CredentialConfiguration()
+                        {
+                            Username = Environment.GetEnvironmentVariable("spdeployment:username", EnvironmentVariableTarget.Machine),
+                            Password = Environment.GetEnvironmentVariable("spdeployment:password", EnvironmentVariableTarget.Machine)
+                        };
+                    }
                 }
             }
             catch {/* ignore errors for credentials config */}
