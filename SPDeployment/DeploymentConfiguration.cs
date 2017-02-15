@@ -35,6 +35,7 @@ namespace SPDeployment
     /// </summary>
     public class CredentialConfiguration
     {
+        public bool FromChromeCookies { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
     }
