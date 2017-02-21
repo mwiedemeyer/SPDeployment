@@ -75,6 +75,17 @@ The file has only the following two attributes:
 }
 ```
 
+Or if you have to deal with ADFS and/or multi-factor authentication you can set SPDeployment to use the cookie store of your Chrome Browser:
+
+```
+{
+  "FromChromeCookies": "True"
+}
+```
+
+Usage: Login in Chrome with ADFS and/or multi-factor authentication and leave Chrome open. Now SPDeployment will use the cookies from the session for authentication.
+
+
 If `spd` detects this file, it ignores the Username/Password attributes from `SPDeployment.json`.
 If you would like to not save credentials on disk, you can add two environment variables (lookup order: Process->User->Machine):
 

@@ -350,44 +350,54 @@ namespace SPDeployment
         {
             var context = new ClientContext(site.Url);
 
-            var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : _credentialConfiguration?.Username;
-            var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : _credentialConfiguration?.Password;
+            if (!_credentialConfiguration.FromChromeCookies)
+            {
+                var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : _credentialConfiguration?.Username;
+                var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : _credentialConfiguration?.Password;
 
-            if (string.IsNullOrEmpty(username))
-            {
-                Console.ResetColor();
-                Console.WriteLine("Please enter username for {0}", site.Url);
-                username = Console.ReadLine();
-            }
-            if (string.IsNullOrEmpty(password))
-            {
-                Console.ResetColor();
-                Console.WriteLine("Please enter password for user {0} and site {1}", username, site.Url);
-                ConsoleKeyInfo key;
-                string pw = "";
-                do
+                if (string.IsNullOrEmpty(username))
                 {
-                    key = Console.ReadKey(true);
-                    if (key.Key != ConsoleKey.Enter)
-                        pw += key.KeyChar;
-                    Console.Write("*");
+                    Console.ResetColor();
+                    Console.WriteLine("Please enter username for {0}", site.Url);
+                    username = Console.ReadLine();
                 }
-                while (key.Key != ConsoleKey.Enter);
-                Console.WriteLine();
-                password = pw;
-            }
+                if (string.IsNullOrEmpty(password))
+                {
+                    Console.ResetColor();
+                    Console.WriteLine("Please enter password for user {0} and site {1}", username, site.Url);
+                    ConsoleKeyInfo key;
+                    string pw = "";
+                    do
+                    {
+                        key = Console.ReadKey(true);
+                        if (key.Key != ConsoleKey.Enter)
+                            pw += key.KeyChar;
+                        Console.Write("*");
+                    }
+                    while (key.Key != ConsoleKey.Enter);
+                    Console.WriteLine();
+                    password = pw;
+                }
 
-            if (site.Url.ToUpper().Contains("SHAREPOINT.COM"))
-            {
-                var securePassword = new SecureString();
-                foreach (char c in password) securePassword.AppendChar(c);
-                context.Credentials = new SharePointOnlineCredentials(username, securePassword);
+                if (site.Url.ToUpper().Contains("SHAREPOINT.COM"))
+                {
+                    var securePassword = new SecureString();
+                    foreach (char c in password) securePassword.AppendChar(c);
+                    context.Credentials = new SharePointOnlineCredentials(username, securePassword);
+                }
+                else
+                {
+                    context.Credentials = new System.Net.NetworkCredential(username, password);
+                }
             }
-            else
+            context.ExecutingWebRequest += (sender, e) =>
             {
-                context.Credentials = new System.Net.NetworkCredential(username, password);
-            }
-            context.ExecutingWebRequest += (sender, e) => { e.WebRequestExecutor.WebRequest.PreAuthenticate = true; };
+                if (_credentialConfiguration.FromChromeCookies)
+                {
+                    e.WebRequestExecutor.WebRequest.CookieContainer = CookieStore.GetCookieContainer(new Uri(site.Url));
+                }
+                e.WebRequestExecutor.WebRequest.PreAuthenticate = true;
+            };
             return context;
         }
 
