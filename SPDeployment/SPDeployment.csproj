@@ -170,6 +170,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetDir)*.dll" "$(SolutionDir)npm\bin" /y
+xcopy "$(TargetDir)x64\*.dll" "$(SolutionDir)npm\bin\x64" /y
+xcopy "$(TargetDir)x86\*.dll" "$(SolutionDir)npm\bin\x86" /y
 xcopy "$(TargetDir)SPDeployment.exe" "$(SolutionDir)npm\bin" /y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.104.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.104.0\build\net451\System.Data.SQLite.Core.targets')" />

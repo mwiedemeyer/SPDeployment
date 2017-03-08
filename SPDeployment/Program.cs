@@ -12,7 +12,7 @@ namespace SPDeployment
         {
             Console.WriteLine();
             Console.WriteLine("SPDeployment v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
-            Console.WriteLine("===================");
+            Console.WriteLine("====================");
             Console.WriteLine();
 
             try
