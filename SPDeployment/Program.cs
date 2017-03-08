@@ -81,8 +81,9 @@ namespace SPDeployment
             {
                 Environment.ExitCode = 500;
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex);
                 ShowHelp();
                 Environment.ExitCode = 500;
             }
