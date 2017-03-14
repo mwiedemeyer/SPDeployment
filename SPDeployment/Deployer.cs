@@ -16,6 +16,7 @@ namespace SPDeployment
     {
         private const string DEPLOYMENT_CONFIG_JSON = "spdeployment.json";
         private const string DEPLOYMENT_CREDENTIAL_JSON = "spdeployment.credentials.json";
+        private const string PROPERTY_FILE_EXTENSION = ".spdproperties";
 
         private DeploymentConfiguration _deploymentConfiguration;
         private CredentialConfiguration _credentialConfiguration;
@@ -151,6 +152,9 @@ namespace SPDeployment
 
                             foreach (var localFile in Directory.GetFiles(fileConfig.Source, "*.*", SearchOption.AllDirectories))
                             {
+                                if (localFile.EndsWith(PROPERTY_FILE_EXTENSION))
+                                    continue;
+
                                 if (excludeSplit != null)
                                 {
                                     var excludeFile = false;
@@ -204,7 +208,9 @@ namespace SPDeployment
                                 if (!site.FastMode && fileConfig.Destination != "/")
                                     context.Web.CheckOutFile(remoteFile);
 
-                                remoteFolder.UploadFile(filename, localFile, true);
+                                var spRemoteFile = remoteFolder.UploadFile(filename, localFile, true);
+
+                                EnsureProperties(localFile, spRemoteFile);
 
                                 if (!site.FastMode && fileConfig.Destination != "/")
                                     context.Web.CheckInFile(remoteFile, CheckinType.MajorCheckIn, "SPDeployment");
@@ -230,6 +236,24 @@ namespace SPDeployment
                 Log("Stop Error: {0}", ConsoleColor.Red, ex.ToString());
                 Console.ResetColor();
                 throw new ApplicationException();
+            }
+        }
+
+        private void EnsureProperties(string fullPathLocalFile, Microsoft.SharePoint.Client.File file)
+        {
+            var propFile = fullPathLocalFile + PROPERTY_FILE_EXTENSION;
+            if (!System.IO.File.Exists(propFile))
+                return;
+
+            try
+            {
+                var propertyBag = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(propFile));
+                file.SetFileProperties(propertyBag, false);
+            }
+            catch (Exception)
+            {
+                Log($"Setting properties failed for file {fullPathLocalFile} with property file {propFile}", ConsoleColor.Red);
+                throw;
             }
         }
 
