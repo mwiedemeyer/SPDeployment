@@ -92,6 +92,19 @@ If you would like to not save credentials on disk, you can add two environment v
 * `spdeployment:username`
 * `spdeployment:password`
 
+### I want to set properties after uploading files (e.g. for .webpart files)
+
+Just add a `[YOUR_FILE_WITH_EXTENSION].spdproperties` file with the following format:
+
+```
+{
+  "FieldName1": "NewValue",
+  "FieldName2": "NewValue"
+}
+```
+
+`spd` will automatically set the properties after uploading the file.
+
 ### Run it
 
 To run it, open a command line within your project root folder and run:
