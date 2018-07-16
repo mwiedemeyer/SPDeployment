@@ -374,7 +374,7 @@ namespace SPDeployment
         {
             var context = new ClientContext(site.Url);
 
-            if (!_credentialConfiguration.FromChromeCookies)
+            if (_credentialConfiguration == null || !_credentialConfiguration.FromChromeCookies)
             {
                 var username = string.IsNullOrEmpty(_credentialConfiguration?.Username) ? site.Username : _credentialConfiguration?.Username;
                 var password = string.IsNullOrEmpty(_credentialConfiguration?.Password) ? site.Password : _credentialConfiguration?.Password;
