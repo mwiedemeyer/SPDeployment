@@ -416,7 +416,7 @@ namespace SPDeployment
             }
             context.ExecutingWebRequest += (sender, e) =>
             {
-                if (_credentialConfiguration.FromChromeCookies)
+                if (_credentialConfiguration != null && _credentialConfiguration.FromChromeCookies)
                 {
                     e.WebRequestExecutor.WebRequest.CookieContainer = CookieStore.GetCookieContainer(new Uri(site.Url));
                 }
