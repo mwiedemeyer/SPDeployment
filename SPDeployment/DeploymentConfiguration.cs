@@ -28,6 +28,7 @@ namespace SPDeployment
         public string Destination { get; set; }
         public string Exclude { get; set; }
         public string Include { get; set; }
+        public bool Clean { get; set; }
     }
 
     /// <summary>

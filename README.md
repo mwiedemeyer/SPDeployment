@@ -37,7 +37,8 @@ It has the following elements:
           "Source": "dist\\Style Library",
           "Destination": "/Style Library",
           "Exclude": ".*.bundle,.*.map",
-		  "Include": ""
+		  "Include": "",
+		  "Clean": true
         }
       ]
     }
@@ -59,6 +60,7 @@ Then you can specify multiple sites which must have the following parameters:
     * the remote destination folder (in url format with /)
     * (optional) Regex to exclude files/folders
 	* (optional) Regex to include files/folders
+	* (optional) Deletes all files from the folder before deployment
 
 Now add this file to your project root.
 

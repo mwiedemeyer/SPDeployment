@@ -12,7 +12,8 @@
         {
           "Source": "dist\\Style Library",
           "Destination": "/Style Library",
-          "Exclude": ".*.bundle,.*.map"
+					"Exclude": ".*.bundle,.*.map",
+					"Clean":  true
         }
       ]
     },
@@ -31,7 +32,8 @@
         {
           "Source": "dist\\Scripts",
           "Destination": "/scripts",
-          "Include": "myfile.js"
+					"Include": "myfile.js",
+					"Clean":  true
         }
       ]
     }
