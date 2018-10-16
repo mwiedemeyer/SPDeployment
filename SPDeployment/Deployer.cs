@@ -155,9 +155,10 @@ namespace SPDeployment
                                 try
                                 {
                                     var folder = context.Web.EnsureFolderPath(fileConfig.Destination);
-                                    context.Load(folder.Files);
+                                    context.Load(folder, f => f.Files, f => f.Folders);
                                     context.ExecuteQuery();
                                     folder.Files.ToList().ForEach(file => file.DeleteObject());
+                                    folder.Folders.ToList().ForEach(f => f.DeleteObject());
                                     context.ExecuteQuery();
                                 }
                                 catch { }
