@@ -150,6 +150,19 @@ namespace SPDeployment
 
                             var folderCache = new Dictionary<string, Folder>();
 
+                            if (fileConfig.Clean)
+                            {
+                                try
+                                {
+                                    var folder = context.Web.EnsureFolderPath(fileConfig.Destination);
+                                    context.Load(folder.Files);
+                                    context.ExecuteQuery();
+                                    folder.Files.ToList().ForEach(file => file.DeleteObject());
+                                    context.ExecuteQuery();
+                                }
+                                catch { }
+                            }
+
                             foreach (var localFile in Directory.GetFiles(fileConfig.Source, "*.*", SearchOption.AllDirectories))
                             {
                                 if (localFile.EndsWith(PROPERTY_FILE_EXTENSION))
